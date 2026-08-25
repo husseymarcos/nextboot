@@ -1,11 +1,18 @@
+# syntax=docker/dockerfile:1
 FROM gradle:9.7.1-jdk21 AS build
 WORKDIR /app
-COPY . .
-RUN gradle --no-daemon bootJar
+ENV GRADLE_USER_HOME=/gradle-cache
+COPY build.gradle.kts settings.gradle.kts gradlew ./
+COPY gradle/ ./gradle/
+RUN --mount=type=cache,target=/gradle-cache gradle --no-daemon dependencies --quiet > /dev/null || true
+COPY src ./src
+RUN --mount=type=cache,target=/gradle-cache gradle --no-daemon --build-cache bootJar
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-ENV PORT=80
 COPY --from=build /app/build/libs/*.jar app.jar
-EXPOSE 80
-CMD ["/opt/java/openjdk/bin/java", "-XX:TieredStopAtLevel=1", "-jar", "app.jar"]
+EXPOSE 8080
+CMD ["/opt/java/openjdk/bin/java", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-XX:+ExitOnOutOfMemoryError", \
+  "-jar", "app.jar"]
