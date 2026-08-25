@@ -35,6 +35,10 @@ class MessageController(private val jdbc: JdbcTemplate) {
     fun list(): List<Message> =
         jdbc.query("select id, text, created_at from messages order by id desc limit 50", messageMapper)
 
+    @GetMapping("/health")
+    fun health(): Map<String, String> =
+        mapOf("status" to "ok", "service" to "nextboot-backend", "version" to "backend-v2")
+
     @PostMapping
     fun create(@RequestBody request: MessageRequest): Message {
         val text = request.text?.trim().orEmpty()

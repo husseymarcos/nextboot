@@ -8,13 +8,20 @@ type Message = {
   createdAt: string;
 };
 
+type Health = { status: string; service: string; version: string };
+
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [backend, setBackend] = useState<Health | null>(null);
   const [text, setText] = useState("");
   const [status, setStatus] = useState("Loading messages…");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    fetch("/api/messages/health")
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then(setBackend)
+      .catch(() => setBackend(null));
     fetch("/api/messages")
       .then((response) => {
         if (!response.ok) throw new Error();
@@ -55,7 +62,9 @@ export default function Home() {
     <main>
       <section className="bench">
         <header>
-          <p className="eyebrow">Vercel deployment demo</p>
+          <p className="eyebrow">
+            Vercel deployment demo · frontend v2 · {backend ? `${backend.version} online` : "backend offline"}
+          </p>
           <h1>Send one message through the whole stack.</h1>
           <p className="intro">Reload after saving. If it stays, Next.js reached Spring Boot and Neon persisted it.</p>
         </header>
