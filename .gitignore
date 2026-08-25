@@ -1,0 +1,8 @@
+.DS_Store
+.env*
+!.env.example
+.vercel
+frontend/.next
+frontend/node_modules
+backend/.gradle
+backend/build
