@@ -38,4 +38,6 @@ Open <http://localhost:3000>. The backend creates the `messages` table automatic
 ./backend/gradlew -p backend test
 npm --prefix frontend run build
 docker build -f backend/Dockerfile.vercel backend
+
+
 ```
